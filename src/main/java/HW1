@@ -1,0 +1,20 @@
+Implement the Strategy pattern for compressing the incoming OutputStream.
+- The output should be a compressed OutputStream depending on the zip/gzip algorithm chosen
+- Use lambda constructions
+- How the data source is selected, the choice of the algorithm (interactive console, launch, config, ..) at your discretion
+
+*Note: for the zip algorithm, be sure to specify the file name in the archive:
+
+((ZipOutputStream) out).putNextEntry(new ZipEntry(..));
+
+1. ваша стратегия
+public interface CompressionStrategy {
+    OutputStream compress(OutputStream data) throws IOException;
+}
+2. и покажите Compressor-а работающего от абстракции OutputStream
+3. т.к GZIPOutputStream и ZipOutputStream - его наследники
+
+InputStream перегоням в OutputStream
+Но проще применить утильный метод, который под собой сделает примерно также:
+Files.copy(Path src, OutputStream dest)
+dest - соотв. одна из вариаций сжатого потока
