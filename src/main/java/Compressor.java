@@ -11,17 +11,21 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-@AllArgsConstructor
 public class Compressor {
 
     private final CompressionStrategy strategy;
+    static String outFileName;
+
+    public Compressor(CompressionStrategy strategy) {
+        this.strategy = strategy;
+    }
 
     public static void main(String[] args) {
         try {
             System.out.println("Compression in " + args[0]);
 
             Path inFile = Paths.get(args[1]);
-            String outFileName = inFile.getFileName().toString();
+            outFileName = inFile.getFileName().toString();
 
             if (args[0].equals("zip")) {
                 File outFile = new File(outFileName.replaceAll("[^.]+$","").concat("zip"));
@@ -44,7 +48,7 @@ public class Compressor {
         try (OutputStream outStream = new FileOutputStream(outFile)) {
             OutputStream finalOutputStream = strategy.compress(outStream);
             if (finalOutputStream instanceof ZipOutputStream) {
-                ((ZipOutputStream) finalOutputStream).putNextEntry(new ZipEntry("frog.png"));
+                ((ZipOutputStream) finalOutputStream).putNextEntry(new ZipEntry(outFileName));
             }
             Files.copy(inFile, finalOutputStream);
             finalOutputStream.close();
