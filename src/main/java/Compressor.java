@@ -11,29 +11,25 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+@AllArgsConstructor
 public class Compressor {
 
     private final CompressionStrategy strategy;
-    static String outFileName;
-
-    public Compressor(CompressionStrategy strategy) {
-        this.strategy = strategy;
-    }
 
     public static void main(String[] args) {
         try {
             System.out.println("Compression in " + args[0]);
 
             Path inFile = Paths.get(args[1]);
-            outFileName = inFile.getFileName().toString();
+            String filename = inFile.getFileName().toString();
 
             if (args[0].equals("zip")) {
-                File outFile = new File(outFileName.replaceAll("[^.]+$","").concat("zip"));
+                File outFile = new File(filename.replaceAll("[^.]+$", "").concat("zip"));
                 Compressor zipCompressor = new Compressor(ZipOutputStream::new);
                 zipCompressor.compress(inFile, outFile);
 
             } else if (args[0].equals("gzip")) {
-                File outFile = new File(outFileName.concat(".gz"));
+                File outFile = new File(filename.concat(".gz"));
                 Compressor gzipCompressor = new Compressor(GZIPOutputStream::new);
                 gzipCompressor.compress(inFile, outFile);
             } else {
@@ -45,13 +41,13 @@ public class Compressor {
     }
 
     public void compress(Path inFile, File outFile) throws IOException {
-        try (OutputStream outStream = new FileOutputStream(outFile)) {
-            OutputStream finalOutputStream = strategy.compress(outStream);
+        try (OutputStream outStream = new FileOutputStream(outFile);
+             OutputStream finalOutputStream = strategy.compress(outStream);) {
+            String filename = inFile.getFileName().toString();
             if (finalOutputStream instanceof ZipOutputStream) {
-                ((ZipOutputStream) finalOutputStream).putNextEntry(new ZipEntry(outFileName));
+                ((ZipOutputStream) finalOutputStream).putNextEntry(new ZipEntry(filename));
             }
             Files.copy(inFile, finalOutputStream);
-            finalOutputStream.close();
         }
     }
 }
